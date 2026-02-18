@@ -1,0 +1,2 @@
+-- Seed intentionally minimal for MVP foundation.
+-- Add role mappings and test employees in later development phases.

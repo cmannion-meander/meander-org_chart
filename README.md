@@ -1,158 +1,282 @@
 # Meander Org Chart
 
-## Implementation Plan (Pre-Development)
+This repo is designed to be rebuilt from scratch live using AI coding prompts.
 
-This README captures the implementation plan derived from `PRD.md`.  
-No application development has started yet.
+If you reset the codebase, keep these files:
+- `README.md`
+- `PRD.md`
+- `samples/employees_sample.csv`
 
-## MVP Constraints To Honor
+## Rebuild Goal
 
-- Deployment: single Azure App Service (no Kubernetes).
-- Auth: Azure AD (Microsoft Entra ID) via OAuth/OIDC; corporate accounts only.
-- Roles: `admin`, `hr_editor`, `viewer`, with server-side enforcement on write/admin routes.
-- Data store: PostgreSQL in Azure; SQLite allowed for local development.
-- Scale/performance targets:
-  - Directory search p95 under 500ms at up to 5k employees.
-  - Page load p95 under 2s on corp network at ~2k employees.
-  - Data sheet CSV export supports 5k filtered rows without timeout.
-  - Org chart remains usable at up to 2k employees (lazy child loading preferred).
-- MVP write path: CSV import (upsert) is primary way to create/update employee records.
-- Explicit MVP scope only: directory, profile, org chart, filters, data sheet, export, role-gated admin import.
+Recreate the internal HR tool defined in `PRD.md` with:
+- Next.js App Router
+- Supabase (Postgres + Auth)
+- Views: directory, org chart, employee profile
+- CSV import workflow with validation and idempotent upsert
+- Auth + role gates (`admin`, `hr_editor`, `viewer`)
+- In-app role management page for admins
 
-## Recommended Technical Approach
+## Required Environment Variables
 
-- Framework: Next.js (App Router) fullstack app.
-- Auth: NextAuth with Azure AD provider.
-- ORM/data: Prisma + PostgreSQL.
-- Hosting: one Node runtime on Azure App Service.
-- Observability: application logging + Sentry for errors.
+Use these names exactly:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+- `SUPABASE_SECRET_DEFAULT_KEY`
+- `SUPABASE_DB_PASSWORD`
 
-This matches the PRD recommendation for a single deployable unit and fast UI iteration.
+Never expose secret keys in `NEXT_PUBLIC_*` variables.
 
-## Delivery Plan
+## Operator Setup (before prompts)
 
-### Phase 0: Finalize Decisions (1-2 days)
+Run locally:
 
-- Confirm defaults from PRD open questions:
-  - System of record = HRIS CSV only (for MVP).
-  - Photos = URL only.
-  - Terminated employees hidden by default unless filtered.
-  - Org chart can be rooted on any manager in UI.
-- Define RBAC ownership process (who grants/removes `admin` and `hr_editor`).
-- Freeze MVP field dictionary and CSV contract.
+```bash
+npm install
+```
 
-### Phase 1: Project Foundation (2-3 days)
+Create `.env.local`:
 
-- Bootstrap Next.js + TypeScript + App Router structure.
-- Configure Prisma schema/migrations for:
-  - `Employee`
-  - `UserRole`
-  - `ImportJob`
-- Add local/dev environment setup using SQLite and production profile for PostgreSQL.
-- Add shared validation layer (Zod or equivalent) for CSV rows and API DTOs.
-- Establish baseline CI (typecheck, lint, tests).
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=...
+SUPABASE_SECRET_DEFAULT_KEY=...
+SUPABASE_DB_PASSWORD=...
+```
 
-### Phase 2: Authentication and Authorization (2-3 days)
+## Prompt Script (copy/paste in order)
 
-- Integrate NextAuth Azure AD login flow.
-- Enforce auth on all application pages and APIs.
-- Implement role lookup via `UserRole`.
-- Add route/action guards:
-  - `viewer`: read-only
-  - `hr_editor`: import + data edits where allowed
-  - `admin`: role/field/import configuration
-- Add authorization tests for protected write paths.
+### Prompt 1: Foundation
 
-### Phase 3: Import Pipeline (4-5 days)
+```text
+You are my full-stack developer. Start from this repo with only PRD.md, README.md, and samples/employees_sample.csv present.
 
-- Build CSV upload UI (role-gated to `hr_editor`/`admin`).
-- Parse and validate required columns:
-  - `employee_id`, `name`, `email`, `title`, `department`, `location`, `manager_employee_id`, `status`, `start_date`
-- Implement idempotent upsert by `employee_id`.
-- Add integrity checks:
-  - required fields
-  - missing manager references
-  - cycle detection in manager graph
-- Generate import report (created/updated/rejected counts + row-level errors).
-- Provide downloadable error CSV.
-- Persist import metadata/results in `ImportJob`.
+Build Stage 1 foundation only:
+1) Scaffold a Next.js 16 App Router TypeScript app in this repo.
+2) Add dependencies: @supabase/supabase-js, @supabase/ssr, zod, csv-parse.
+3) Add scripts: dev, build, start, lint, typecheck, db:start, db:stop, db:status, db:reset.
+4) Initialize Supabase project folder and migration workflow.
+5) Add base app layout and a home page with a simple “Supabase connection OK” check.
+6) Add .gitignore protections for .env files and private key material.
 
-### Phase 4: Directory and Profile (3-4 days)
+Constraints:
+- Keep code server-safe and typed.
+- Use App Router only.
+- Do not implement auth/import/directory yet.
 
-- Build directory list with:
-  - search across name/email/title
-  - filters for department/location/status
-- Build profile view with stable route by `employee_id`.
-- Show manager chain and direct reports snippet.
-- Ensure query/index strategy supports target search latency.
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Summarize changed files.
+- Update README Development Record with Stage 1.
+```
 
-### Phase 5: Org Chart (4-5 days)
+### Prompt 2: Schema + Env + Supabase Clients
 
-- Render hierarchy from `manager_employee_id`.
-- Support pan/zoom and expand/collapse.
-- Click node routes to profile.
-- Implement root behavior:
-  - auto-select single no-manager root
-  - require configured root when multiple roots exist
-- Surface edge cases:
-  - cycle errors
-  - orphaned nodes (missing managers)
-- Add lazy loading strategy for larger org trees.
+```text
+Implement Stage 2:
 
-### Phase 6: Data Sheet and Export (3-4 days)
+1) Add Supabase migration with these tables:
+- employees
+- user_roles
+- import_jobs
+Use practical constraints/indexes and timestamps.
 
-- Build table with sortable/filterable columns.
-- Add column picker for visible columns.
-- Ensure filter semantics match directory.
-- Export current filtered/visible dataset to CSV.
-- Test 5k-row export performance and timeout handling.
+2) Add typed Supabase helpers:
+- browser client
+- server client
+- admin/service client
+- middleware helper
 
-### Phase 7: Hardening and Azure Release (3-4 days)
+3) Add environment module with strict checks:
+- Required public vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+- Required server var: SUPABASE_SECRET_DEFAULT_KEY
+- Backward compatible optional names: NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+- Throw a clear error if NEXT_PUBLIC_SUPABASE_SECRET_DEFAULT_KEY is set.
+- Ensure public env access uses static process.env.NEXT_PUBLIC_* access (not dynamic key lookup).
 
-- Add CSRF protections where applicable.
-- Validate server-side authorization coverage.
-- Add metrics/events:
-  - logins
-  - org chart views
-  - exports
-  - imports/failures
-- Configure Azure App Service deployment pipeline.
-- Run load/perf checks against MVP targets.
-- Prepare admin/user handoff documentation.
+4) Add/update .env.example with safe placeholders only.
 
-## Testing and Quality Plan
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Update README Development Record with Stage 2.
+```
 
-- Unit tests:
-  - CSV validation
-  - cycle detection
-  - role guard logic
-- Integration tests:
-  - auth-protected route behavior
-  - import upsert idempotency
-  - directory/profile query correctness
-- End-to-end tests:
-  - viewer browse flow
-  - HR editor import flow with error handling
-  - finance export flow
-- Performance checks:
-  - search latency on seeded 5k employees
-  - org chart usability at 2k
-  - export robustness at 5k rows
+### Prompt 3: Directory, Org Chart, Employee Profile
 
-## Risks and Mitigations
+```text
+Implement Stage 3 browse features from PRD:
 
-- Dirty source CSV data causes graph inconsistencies.
-  - Mitigation: strict validation + actionable error CSV + import dry-run mode.
-- Org chart rendering degrades with very large teams.
-  - Mitigation: lazy load children and cap initial expansion depth.
-- Role drift (incorrect access) creates compliance risk.
-  - Mitigation: server-side guards only, deny-by-default checks, access audit in logs.
-- Performance regressions as fields/filters grow.
-  - Mitigation: index critical columns, benchmark with seeded data in CI/staging.
+Routes:
+- /directory
+- /org-chart
+- /employees/[employeeId]
 
-## Out of Scope for MVP
+Requirements:
+- Directory supports search (name/email/title) and filters (department/location/status).
+- Org chart renders hierarchy from manager_employee_id and lets user choose a root.
+- Employee profile shows core fields, direct manager, and direct reports.
+- Add top nav component used across app.
 
-- Slack/Carta/payroll integrations.
-- SCIM provisioning and non-Azure SSO variants.
-- Engagement features and advanced dashboards.
-- Full in-app attribute editor and audit diff UI (planned for Phase 2+).
+Use current DB schema and Supabase queries.
+
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Update README Development Record with Stage 3.
+```
+
+### Prompt 4: CSV Import Pipeline
+
+```text
+Implement Stage 4 CSV import:
+
+Add:
+- UI page: /import
+- API route: POST /api/imports/csv
+- Import service module for parsing + validation + upsert
+
+Validation rules:
+- Required CSV columns: employee_id,name,email,title,department,location,manager_employee_id,status,start_date
+- Required field checks
+- Invalid date handling
+- Duplicate employee_id in file handling
+- Missing manager detection
+- Manager cycle detection
+
+Behavior:
+- Idempotent upsert by employee_id
+- Track create/update/reject counts
+- Persist import job summary to import_jobs
+- Return rejected rows with reasons and provide downloadable error CSV in UI
+
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Update README Development Record with Stage 4.
+```
+
+### Prompt 5: Auth + Role Gates
+
+```text
+Implement Stage 5 authentication and authorization:
+
+Add routes/pages:
+- /login
+- /auth/callback
+- /auth/logout
+- /unauthorized
+
+Auth requirements:
+- Support Microsoft OAuth provider via Supabase (provider key: azure)
+- Support email magic-link fallback
+- Redirect unauthenticated users from protected pages
+
+Role model:
+- Roles from public.user_roles by user_email
+- Default to viewer if no row exists
+- Role enum: admin, hr_editor, viewer
+
+Enforcement:
+- /import page and /api/imports/csv require admin or hr_editor
+- Server-side role checks only (not client-only)
+
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Update README Development Record with Stage 5.
+```
+
+### Prompt 6: In-App Admin Role Management
+
+```text
+Implement Stage 6 admin role management:
+
+Add:
+- Admin page: /admin/roles
+- Admin API: /api/admin/roles with GET, PUT, DELETE
+
+Rules:
+- Admin-only access
+- Manage user_roles rows (email + role)
+- Prevent removing/demoting your own admin role unsafely
+- Prevent deleting/demoting the last remaining admin
+
+UI:
+- Table of current role rows
+- Add/update role form
+- Delete action
+- Show current signed-in user email and role counts
+
+Also update app nav so admin users see an Admin link.
+
+Validation:
+- Run npm run lint, npm run typecheck, npm run build.
+- Update README Development Record with Stage 6.
+```
+
+### Prompt 7: Final Hardening Pass
+
+```text
+Run a final hardening and consistency pass:
+
+1) Ensure .gitignore excludes .env, .env.local, .env.* (except .env.example), and key/cert files.
+2) Ensure README includes:
+- local run instructions
+- env variable names
+- auth/role setup
+- sample CSV import instructions
+- known next stages (Data Sheet, tests, RLS hardening)
+3) Fix any naming mismatches around Supabase keys.
+4) Re-run npm run lint, npm run typecheck, npm run build and resolve all issues.
+5) Provide a concise file-by-file summary.
+```
+
+## SQL Bootstrap For First Admin
+
+After auth works and you can connect to DB, run this once:
+
+```sql
+insert into public.user_roles (user_email, role)
+values ('cmannion@meanderhq.com', 'admin')
+on conflict (user_email)
+do update set role = excluded.role, updated_at = timezone('utc', now());
+```
+
+If using `psql` with Supabase pooler:
+
+```bash
+set -a
+source .env.local
+set +a
+
+PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
+  "host=aws-1-us-east-1.pooler.supabase.com port=6543 dbname=postgres user=postgres.<project-ref> sslmode=require"
+```
+
+Replace `<project-ref>` with your Supabase project ref.
+
+## Live Demo Flow
+
+Use this sequence on camera:
+1. Run Prompt 1 through Prompt 7 in order.
+2. Apply migration SQL in Supabase (or use `supabase db reset` for local stack).
+3. Start app: `npm run dev`.
+4. Sign in at `/login`.
+5. Bootstrap admin role with SQL above.
+6. Open `/admin/roles` and assign any extra users.
+7. Import `samples/employees_sample.csv` at `/import`.
+8. Demo `/directory`, `/org-chart`, and `/employees/<employee_id>`.
+
+## Development Record
+
+- Stage 0 (February 18, 2026): Planned MVP scope and architecture from `PRD.md`.
+- Stage 1 (February 18, 2026): Next.js + Supabase foundation.
+- Stage 2 (February 18, 2026): Schema, env safety, Supabase client layers.
+- Stage 3 (February 18, 2026): Directory, org chart, employee profile browse views.
+- Stage 4 (February 18, 2026): CSV import pipeline with validation, idempotent upsert, and error reporting.
+- Stage 5 (February 18, 2026): Auth + role gates (Microsoft OAuth + magic link).
+- Stage 6 (February 18, 2026): In-app admin role management.
+
+## Next Stages (not yet implemented)
+
+- Data Sheet view with column picker + CSV export
+- Automated tests (unit/integration/e2e)
+- RLS hardening and audit logging
+- Perf validation at 2k/5k employee scale

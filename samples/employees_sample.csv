@@ -1,0 +1,36 @@
+employee_id,name,email,title,department,location,manager_employee_id,status,start_date
+E0001,Avery Morgan,avery.morgan@meander.internal,Chief Executive Officer,Executive,New York,,active,2018-01-08
+E0002,Jordan Lee,jordan.lee@meander.internal,Chief Technology Officer,Engineering,San Francisco,E0001,active,2019-03-11
+E0003,Riley Chen,riley.chen@meander.internal,Chief Financial Officer,Finance,New York,E0001,active,2019-06-17
+E0004,Cameron Patel,cameron.patel@meander.internal,Chief People Officer,People,Chicago,E0001,active,2020-02-10
+E0005,Blake Rivera,blake.rivera@meander.internal,VP Sales,Sales,Austin,E0001,active,2020-08-03
+E0006,Taylor Kim,taylor.kim@meander.internal,VP Marketing,Marketing,Los Angeles,E0001,active,2021-01-25
+E0007,Quinn Brooks,quinn.brooks@meander.internal,Director People Ops,People,Chicago,E0004,active,2021-04-12
+E0008,Drew Walker,drew.walker@meander.internal,Director Engineering,Engineering,San Francisco,E0002,active,2020-10-05
+E0009,Alexis Young,alexis.young@meander.internal,Director Data,Data,Seattle,E0002,active,2021-02-22
+E0010,Parker Hall,parker.hall@meander.internal,IT Manager,IT,Denver,E0002,active,2022-03-14
+E0011,Logan Scott,logan.scott@meander.internal,Engineering Manager,Engineering,San Francisco,E0008,active,2021-07-19
+E0012,Casey Diaz,casey.diaz@meander.internal,Senior Software Engineer,Engineering,San Francisco,E0011,active,2022-01-10
+E0013,Jamie Foster,jamie.foster@meander.internal,Software Engineer II,Engineering,Portland,E0011,active,2022-09-26
+E0014,Reese Howard,reese.howard@meander.internal,QA Engineer,Engineering,San Diego,E0011,active,2023-02-06
+E0015,Kendall Price,kendall.price@meander.internal,Data Engineering Manager,Data,Seattle,E0009,active,2021-09-13
+E0016,Emerson Bell,emerson.bell@meander.internal,Analytics Manager,Data,Boston,E0009,active,2022-04-04
+E0017,Skyler Ward,skyler.ward@meander.internal,Data Engineer,Data,Seattle,E0015,active,2023-01-09
+E0018,Finley James,finley.james@meander.internal,Business Analyst,Data,Boston,E0016,leave,2023-05-22
+E0019,Harper Reed,harper.reed@meander.internal,IT Support Specialist,IT,Denver,E0010,active,2022-11-14
+E0020,Rowan Cruz,rowan.cruz@meander.internal,Security Contractor,IT,Remote,E0010,contractor,2024-01-15
+E0021,Morgan Ellis,morgan.ellis@meander.internal,FP&A Manager,Finance,New York,E0003,active,2021-06-28
+E0022,Peyton Long,peyton.long@meander.internal,Accounting Manager,Finance,New York,E0003,active,2021-08-16
+E0023,Charlie Stone,charlie.stone@meander.internal,Financial Analyst,Finance,Atlanta,E0021,active,2023-03-20
+E0024,Robin Gray,robin.gray@meander.internal,Payroll Specialist,Finance,Atlanta,E0022,active,2023-07-03
+E0025,Elliot Hayes,elliot.hayes@meander.internal,Product Director,Product,Chicago,E0004,active,2021-05-17
+E0026,Shawn Burke,shawn.burke@meander.internal,Design Manager,Design,Chicago,E0004,active,2022-02-14
+E0027,Dakota Wells,dakota.wells@meander.internal,Senior Product Manager,Product,Chicago,E0025,active,2022-12-05
+E0028,Sawyer Flynn,sawyer.flynn@meander.internal,Sales Manager,Sales,Austin,E0005,active,2021-11-01
+E0029,Ryan Bishop,ryan.bishop@meander.internal,Account Executive,Sales,Miami,E0028,active,2023-04-17
+E0030,Terry Lane,terry.lane@meander.internal,Sales Development Rep,Sales,Miami,E0028,terminated,2023-09-11
+E0031,Hayden Cook,hayden.cook@meander.internal,Content Marketing Manager,Marketing,Los Angeles,E0006,active,2022-05-09
+E0032,Kris Powell,kris.powell@meander.internal,Demand Generation Manager,Marketing,Remote,E0006,active,2022-08-29
+E0033,Ari Sutton,ari.sutton@meander.internal,Recruiter,People,Chicago,E0007,active,2023-01-30
+E0034,Micah Shaw,micah.shaw@meander.internal,HR Business Partner,People,Chicago,E0007,active,2022-06-13
+E0035,Devon Banks,devon.banks@meander.internal,People Analyst,People,Remote,E0007,active,2023-10-02

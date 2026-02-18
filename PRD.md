@@ -1,10 +1,10 @@
-## PRD: “People Directory Basic” (internal ChartHop-Basic clone)
+## PRD: "People Directory Basic" (internal ChartHop-Basic clone)
 
 ### 1) Purpose
 
-Build a lightweight internal web app that covers the “ChartHop Basic” core: **employee directory + org chart + simple filtering + a spreadsheet-like data view**, with minimal integrations and an Azure-first deployment.
+Build a lightweight internal web app that covers the "ChartHop Basic" core: **employee directory + org chart + simple filtering + a spreadsheet-like data view**, with minimal integrations and a managed backend via Supabase.
 
-Success is “HR/People Ops can answer ‘who is where, reporting to whom, and what’s their basic profile data’ in <2 minutes, without opening HRIS exports.”
+Success is "HR/People Ops can answer 'who is where, reporting to whom, and what’s their basic profile data' in <2 minutes, without opening HRIS exports."
 
 ---
 
@@ -46,7 +46,7 @@ Success is “HR/People Ops can answer ‘who is where, reporting to whom, and w
    * CSV upload to create/update employees
    * Basic validation + error report
 
-#### “Basic+” (phase 2)
+#### "Basic+" (phase 2)
 
 * **Change history / audit log** (who edited what)
 * **Attribute editor UI** (edit fields in-app; no CSV needed)
@@ -54,13 +54,13 @@ Success is “HR/People Ops can answer ‘who is where, reporting to whom, and w
 * **Org chart filters** (show only dept, hide contractors, etc.)
 * **Teams/Groups** (saved filters)
 
-#### Nice-to-have / future (explicitly de-scoped for “keep it simple”)
+#### Nice-to-have / future (explicitly de-scoped for "keep it simple")
 
 * Slack integration (profile sync / presence)
 * Carta integration (equity)
 * Payroll integration (HRIS connectors)
-* “Map” visualization beyond a trivial location grouping
-* Advanced SSO (beyond Azure AD) or SCIM provisioning
+* "Map" visualization beyond a trivial location grouping
+* SCIM provisioning and advanced identity workflows
 * Engagement features (surveys, kudos, etc.)
 
 ---
@@ -69,7 +69,7 @@ Success is “HR/People Ops can answer ‘who is where, reporting to whom, and w
 
 #### 4.1 Authentication & authorization
 
-**MVP requirement:** Azure AD sign-in (Microsoft Entra ID) using OAuth/OIDC.
+**MVP requirement:** Azure AD sign-in (Microsoft Entra ID) via Supabase Auth OAuth/OIDC.
 
 * Users must authenticate with corporate accounts.
 * Authorization is role-based:
@@ -82,6 +82,7 @@ Success is “HR/People Ops can answer ‘who is where, reporting to whom, and w
 
 * Unauthenticated users are redirected to login.
 * Role gates enforced on all write endpoints and admin UI.
+* Azure AD tenant restrictions are enforced in auth configuration.
 
 ---
 
@@ -96,7 +97,7 @@ Directory view:
 Profile view:
 
 * Shows core fields + reporting line (manager chain)
-* “Org snippet”: direct reports list
+* "Org snippet": direct reports list
 
 **Acceptance criteria**
 
@@ -146,7 +147,7 @@ Profile view:
 * Upload CSV with required columns:
 
   * `employee_id`, `name`, `email`, `title`, `department`, `location`, `manager_employee_id`, `status`, `start_date`
-* “Upsert” behavior:
+* "Upsert" behavior:
 
   * Existing `employee_id` updates
   * New `employee_id` creates
@@ -169,33 +170,33 @@ Profile view:
 
 ### 5) Non-functional requirements
 
-* **Deployment:** single Azure App Service (no Kubernetes)
-* **Data:** Postgres (Azure Database for PostgreSQL Flexible Server) or SQLite for local dev
+* **Deployment:** single Next.js web app deployment plus one Supabase project
+* **Data:** Supabase PostgreSQL (managed); local dev via Supabase CLI/local stack or shared dev project
 * **Performance:** p95 page loads under 2s on corp network for 2k employees
 * **Security:** least privilege, server-side auth checks, CSRF protection where relevant
+* **Authorization model:** database-level protections via Postgres RLS where practical
 * **Auditability (phase 2):** append-only change log for employee edits/imports
 
 ---
 
-### 6) Recommended architecture (simple, Azure-friendly)
+### 6) Recommended architecture (simple, managed, fast to iterate)
 
-#### Option A (recommended): Next.js “fullstack” on Azure App Service
+#### Option A (recommended): Next.js + Supabase
 
-* **UI:** Next.js (App Router)
-* **API:** Next.js route handlers (server actions where appropriate)
-* **Auth:** NextAuth with Azure AD provider
-* **DB:** Postgres + Prisma ORM
+* **UI/API:** Next.js (App Router + route handlers/server actions)
+* **Auth:** Supabase Auth with Azure AD provider
+* **DB:** Supabase Postgres (tables + indexes + RLS)
+* **Storage:** Supabase Storage for optional profile photos (phase 2; URL-only in MVP)
 * **Org chart UI:** React tree library (or custom) with lazy loading
-* **Hosting:** One App Service running Node
+* **Hosting:** Vercel or Azure App Service for Next.js (single web app)
 
-Why this fits: one deployable unit, fast iteration, good UI ergonomics for org chart + table interactions.
+Why this fits: one app codebase, managed auth + database, and simpler operations for a small internal team.
 
-#### Option B: Flask + lightweight React
+#### Option B: Power Apps + Dataverse
 
-* Flask for auth/API + React for org chart/table.
-* Slightly more glue and build complexity.
+* Better for no-code ownership by HR, but lower UI flexibility for advanced org-chart and custom interaction requirements.
 
-Given “vibe coding” speed and UI-heavy needs, **Next.js is the pragmatic default**.
+Given current direction and need for tailored UX, **Next.js + Supabase is the pragmatic default**.
 
 ---
 
@@ -286,17 +287,18 @@ Given “vibe coding” speed and UI-heavy needs, **Next.js is the pragmatic def
 2. **Photo source**: do we want to support uploads, or just a URL? (Default: URL only)
 3. **Termination visibility**: show terminated employees by default or hidden? (Default: hidden unless filtered)
 4. **Org root**: always top exec or allow rooting on any manager? (Default: allow any root in UI)
+5. **Web hosting target**: Vercel or Azure App Service for the Next.js app? (Default: Vercel)
 
 ---
 
-### 13) Explicit “ChartHop Basic” mapping (what we’re recreating)
+### 13) Explicit "ChartHop Basic" mapping (what we’re recreating)
 
-From the screenshot’s promise (“org chart + employee data + engagement”), the internal-tool equivalent is:
+From the screenshot’s promise ("org chart + employee data + engagement"), the internal-tool equivalent is:
 
 * Rich profiles ✅ (MVP)
 * Org chart w/ filters ✅ (MVP)
-* SSO ✅ (MVP via Azure AD)
-* “Primary payroll integrations” ❌ (de-scoped; CSV import stands in)
+* SSO ✅ (MVP via Azure AD through Supabase Auth)
+* "Primary payroll integrations" ❌ (de-scoped; CSV import stands in)
 * Dashboard ❌ (replace with Directory + Data Sheet; add later if needed)
-* “Map” ❌ (defer; optionally add a trivial “Location summary” later)
+* "Map" ❌ (defer; optionally add a trivial "Location summary" later)
 * Slack/Carta ❌ (defer)
