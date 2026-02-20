@@ -1,9 +1,6 @@
 # Rebuild Prompts (Execution Order)
 
-Use these prompts sequentially to recreate the project from a repo that only contains:
-- `README.md`
-- `PRD.md`
-- `samples/employees_sample.csv`
+Use these prompts sequentially to recreate the project from this minimal handoff repo (docs + sample data, no generated app code).
 
 ## Operator Setup (once)
 
@@ -27,7 +24,7 @@ SUPABASE_DB_PASSWORD=...
 ## Prompt 1: Foundation
 
 ```text
-You are my full-stack developer. Start from this repo with only PRD.md, README.md, and samples/employees_sample.csv present.
+You are my full-stack developer. Start from this minimal repo with PRD.md, README.md, Prompts.md, and samples/employees_sample.csv present.
 
 Build Stage 1 foundation only:
 1) Scaffold a Next.js 16 App Router TypeScript app in this repo.
