@@ -1,0 +1,2 @@
+-- Stage 1 foundation migration placeholder.
+-- Future stages will add application tables and RLS policies.

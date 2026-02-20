@@ -1,0 +1,25 @@
+# Exclude local and generated artifacts from azd package/deploy
+.git/
+.github/
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Exclude local env/secrets
+.env
+.env.local
+.env.*
+!.env.example
+
+# Supabase local runtime
+supabase/.branches/
+supabase/.temp/
+
+# Editor/system files
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.tsbuildinfo

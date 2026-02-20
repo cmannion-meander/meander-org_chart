@@ -140,17 +140,25 @@ Add routes/pages:
 
 Auth requirements:
 - Support Microsoft OAuth provider via Supabase (provider key: azure)
-- Support email magic-link fallback
+- Add password-based sign-in form (email + password)
+- Add password signup flow for new users
+- Do not rely on magic-link auth for core login (optional at most, never required)
 - Redirect unauthenticated users from protected pages
 
 Role model:
 - Roles from public.user_roles by user_email
 - Default to viewer if no row exists
-- Role enum: admin, hr_editor, viewer
+- Role enum: admin, hr_editor, viewer, pending_approval
+- New signups default to pending_approval until admin changes role
 
 Enforcement:
 - /import page and /api/imports/csv require admin or hr_editor
 - Server-side role checks only (not client-only)
+
+Session and safety requirements:
+- Ensure auth session persists across navbar route transitions
+- Use server-side cookie setting for password login
+- Avoid side-effectful GET auth routes (logout must be POST-driven)
 
 Validation:
 - Run npm run lint, npm run typecheck, npm run build.
@@ -196,8 +204,15 @@ Run a final hardening and consistency pass:
 - environment variable names
 - rebuild instructions referencing Prompts.md
 3) Fix any naming mismatches around Supabase keys.
-4) Re-run npm run lint, npm run typecheck, npm run build and resolve all issues.
-5) Provide a concise file-by-file summary.
+4) Validate auth/session reliability:
+- login works with password
+- session survives navigation across /directory, /org-chart, /import
+- logout only signs out via POST (no GET side effects/prefetch signout)
+5) Re-run npm run lint, npm run typecheck, npm run build and resolve all issues.
+6) UI cleanup pass:
+- modern SaaS-style visual consistency
+- tidy spacing/typography states across nav, auth, tables, forms, and feedback messages
+7) Provide a concise file-by-file summary.
 ```
 
 ## Post-Build SQL: Bootstrap First Admin

@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/cec15ab6-bfd7-4497-9de1-afa54b0cfa34/resourceGroups/YoutubeDemo/providers/Microsoft.Web/sites/meanderorgchart",
+    "appService.deploySubpath": "."
+}
